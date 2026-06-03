@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduQuiz INF.02 - Portalu Nauki i Egzaminów</title>
+    <meta name="description" content="Nowoczesna platforma do nauki i rozwiązywania quizów na egzamin zawodowy INF.02 / EE.08. Zawiera pełną bazę pytań z wyjaśnieniami.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">⚡</div>
+                <h1>EduQuiz <span>INF.02</span></h1>
+            </div>
+            
+            <div class="header-controls">
+                <!-- Mini Stats -->
+                <div class="mini-stats" id="miniStats">
+                    <span class="stat-pill" title="Rozwiązane pytania w trybie nauki">
+                        <span class="label">Postęp nauki:</span>
+                        <span class="value" id="learnedCount">0/65</span>
+                    </span>
+                    <span class="stat-pill" title="Średni wynik egzaminów">
+                        <span class="label">Śr. wynik:</span>
+                        <span class="value" id="avgExamScore">0%</span>
+                    </span>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Przełącz motyw" title="Przełącz tryb ciemny/jasny">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="app-nav">
+            <button class="nav-tab active" id="tabPractice" data-target="practice">
+                <span class="tab-icon">📖</span> Nauka
+            </button>
+            <button class="nav-tab" id="tabExam" data-target="exam">
+                <span class="tab-icon">⏱️</span> Egzamin
+            </button>
+            <button class="nav-tab" id="tabBrowse" data-target="browse">
+                <span class="tab-icon">🔍</span> Przeglądaj bazę
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="app-main">
+            
+            <!-- Filters & Search Bar (hidden/visible dynamically based on tab) -->
+            <section class="controls-panel" id="controlsPanel">
+                <div class="filter-group">
+                    <label for="categoryFilter">Kategoria:</label>
+                    <select id="categoryFilter" class="custom-select">
+                        <option value="all">Wszystkie kategorie</option>
+                        <option value="networking">Network (Sieci komputerowe)</option>
+                        <option value="operating_systems">OS (Systemy operacyjne)</option>
+                        <option value="hardware">Hardware (Sprzęt i montaż)</option>
+                        <option value="security_law">Security & Law (Bezpieczeństwo i prawo)</option>
+                        <option value="logic_math">Logic & Math (Logika i obliczenia)</option>
+                    </select>
+                </div>
+                
+                <div class="search-group" id="searchGroup">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Szukaj pytania (np. DNS, maska)..." aria-label="Wyszukaj pytania">
+                    <button class="clear-search-btn" id="clearSearchBtn" aria-label="Wyczyść wyszukiwanie" style="display: none;">&times;</button>
+                </div>
+
+                <div class="utility-group">
+                    <button class="btn btn-secondary" id="resetProgressBtn" title="Resetuje postęp nauki i wyniki egzaminów">Resetuj statystyki</button>
+                </div>
+            </section>
+
+            <!-- PRACTICE MODE -->
+            <section id="sectionPractice" class="tab-content active">
+                <div class="practice-layout">
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar" id="practiceProgressBar" style="width: 0%;"></div>
+                        </div>
+                        <div class="progress-text">
+                            Pytanie <span id="currentPracticeIndex">1</span> z <span id="totalPracticeCount">65</span>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="question-card" id="practiceQuestionCard">
+                        <div class="card-header">
+                            <span class="category-badge" id="practiceCategoryBadge">Kategoria</span>
+                            <span class="question-id-badge">Pytanie <span id="practiceQuestionId">#</span></span>
+                        </div>
+                        <div class="question-text" id="practiceQuestionText">
+                            Ładowanie pytania...
+                        </div>
+                        <div class="options-container" id="practiceOptionsContainer">
+                            <!-- Options injected dynamically by JS -->
+                        </div>
+                        
+                        <!-- Explanation & Next Area (Hidden by default) -->
+                        <div class="explanation-box" id="practiceExplanationBox" style="display: none;">
+                            <div class="explanation-title">
+                                <span class="status-icon" id="explanationStatusIcon">ℹ️</span>
+                                <span id="explanationStatusText">Wyjaśnienie:</span>
+                            </div>
+                            <p class="explanation-text" id="practiceExplanationText">
+                                Wyjaśnienie dlaczego ta odpowiedź jest prawidłowa.
+                            </p>
+                        </div>
+
+                        <!-- Card Actions -->
+                        <div class="card-actions">
+                            <button class="btn btn-primary" id="btnCheckAnswer" disabled>Sprawdź odpowiedź</button>
+                            <button class="btn btn-success" id="btnNextQuestion" style="display: none;">Następne pytanie &rarr;</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EXAM MODE -->
+            <section id="sectionExam" class="tab-content">
+                <!-- Exam Setup/Start screen -->
+                <div class="exam-start-container" id="examStartContainer">
+                    <div class="exam-welcome-card">
+                        <h2>Symulator Egzaminu INF.02</h2>
+                        <p>Przetestuj swoją wiedzę w warunkach zbliżonych do prawdziwego egzaminu zawodowego.</p>
+                        
+                        <div class="exam-rules">
+                            <div class="rule-item">
+                                <span class="rule-icon">📝</span>
+                                <div class="rule-details">
+                                    <strong>40 pytań jednokrotnego wyboru</strong>
+                                    <span>Pytania zostaną wylosowane ze wszystkich 65 dostępnych pytań.</span>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <span class="rule-icon">⏱️</span>
+                                <div class="rule-details">
+                                    <strong>60 minut czasu</strong>
+                                    <span>Zegar odlicza czas do tyłu. Możesz zakończyć test w dowolnym momencie.</span>
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <span class="rule-icon">🏆</span>
+                                <div class="rule-details">
+                                    <strong>Próg zaliczenia: 50% (20/40)</strong>
+                                    <span>Aby zdać egzamin teoretyczny, musisz zdobyć co najmniej 20 punktów.</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="exam-start-actions">
+                            <button class="btn btn-primary btn-lg" id="btnStartExam">Rozpocznij egzamin</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Exam Screen -->
+                <div class="exam-active-container" id="examActiveContainer" style="display: none;">
+                    <div class="exam-header-bar">
+                        <div class="exam-timer" id="examTimer">Pozostały czas: 60:00</div>
+                        <div class="exam-progress-text">Odpowiedziano: <span id="answeredExamCount">0</span>/40</div>
+                        <button class="btn btn-danger" id="btnFinishExam">Zakończ egzamin</button>
+                    </div>
+
+                    <div class="exam-layout">
+                        <!-- Left Side: Active Question -->
+                        <div class="exam-question-column">
+                            <div class="question-card" id="examQuestionCard">
+                                <div class="card-header">
+                                    <span class="category-badge" id="examCategoryBadge">Kategoria</span>
+                                    <span class="question-id-badge">Zadanie <span id="examDisplayIndex">1</span>/40</span>
+                                </div>
+                                <div class="question-text" id="examQuestionText">
+                                    Ładowanie pytania...
+                                </div>
+                                <div class="options-container" id="examOptionsContainer">
+                                    <!-- Options injected dynamically by JS -->
+                                </div>
+                                <div class="card-actions-exam">
+                                    <button class="btn btn-secondary" id="btnPrevExam">&larr; Poprzednie</button>
+                                    <button class="btn btn-secondary" id="btnNextExam">Następne &rarr;</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Navigation Grid -->
+                        <div class="exam-nav-column">
+                            <h3>Arkusz odpowiedzi</h3>
+                            <div class="exam-nav-grid" id="examNavGrid">
+                                <!-- 40 numbers injected dynamically by JS -->
+                            </div>
+                            <div class="grid-legend">
+                                <div class="legend-item"><span class="legend-color legend-answered"></span> Odpowiedziane</div>
+                                <div class="legend-item"><span class="legend-color legend-current"></span> Bieżące</div>
+                                <div class="legend-item"><span class="legend-color legend-empty"></span> Brak odpowiedzi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Results Review Screen -->
+                <div class="exam-results-container" id="examResultsContainer" style="display: none;">
+                    <div class="results-summary-card" id="resultsSummaryCard">
+                        <div class="result-emoji" id="resultEmoji">🎉</div>
+                        <h2 id="resultTitle">Gratulacje! Zdałeś Egzamin!</h2>
+                        <div class="result-score">
+                            <span class="score-value" id="resultScoreValue">32 / 40</span>
+                            <span class="score-percentage" id="resultScorePercent">80%</span>
+                        </div>
+                        <p class="result-subtext" id="resultSubtext">Twój wynik kwalifikuje Cię do zdania części teoretycznej egzaminu INF.02.</p>
+                        
+                        <div class="result-details-grid">
+                            <div class="detail-tile">
+                                <span class="tile-label">Czas trwania</span>
+                                <span class="tile-value" id="resultTimeValue">12:34</span>
+                            </div>
+                            <div class="detail-tile">
+                                <span class="tile-label">Data</span>
+                                <span class="tile-value" id="resultDateValue">02.06.2026</span>
+                            </div>
+                        </div>
+
+                        <div class="results-actions">
+                            <button class="btn btn-primary" id="btnRestartExam">Spróbuj ponownie</button>
+                            <button class="btn btn-secondary" id="btnShowExamReview">Przejrzyj swoje błędy</button>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Review of Exam Questions -->
+                    <div class="exam-review-section" id="examReviewSection" style="display: none;">
+                        <h3>Szczegółowa analiza pytań</h3>
+                        <div class="exam-review-filters">
+                            <button class="btn-filter active" id="btnFilterReviewAll">Wszystkie</button>
+                            <button class="btn-filter" id="btnFilterReviewCorrect">Poprawne</button>
+                            <button class="btn-filter" id="btnFilterReviewIncorrect">Błędne</button>
+                        </div>
+                        <div class="review-questions-list" id="reviewQuestionsList">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BROWSE MODE -->
+            <section id="sectionBrowse" class="tab-content">
+                <div class="browse-layout">
+                    <div class="browse-header">
+                        <h2>Pełna baza pytań (<span id="browseMatchCount">65</span>)</h2>
+                        <p>Przeglądaj wszystkie pytania, poznawaj odpowiedzi i czytaj wyjaśnienia.</p>
+                    </div>
+                    <div class="browse-questions-list" id="browseQuestionsList">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 EduQuiz INF.02. Strona stworzona na potrzeby nauki do egzaminu zawodowego. Wszystkie wyjaśnienia są zredagowane po polsku.</p>
+        </footer>
+    </div>
+
+    <!-- Questions Database -->
+    <script src="questions.js"></script>
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
